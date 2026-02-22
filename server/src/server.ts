@@ -1,48 +1,68 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import express from 'express';
 import type { Application, Request, Response } from 'express';
 import cors from 'cors';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-// routes
-import authRoutes from './routes/auth.js';
-import messageRoutes from './routes/message.js';
-import rootRoutes from './routes/root.js';
+// import api routes
+import authRoutes from './routes/auth.route.js';
+import messageRoutes from './routes/message.route.js';
+// import error middleware
+import { errorHandler } from './middleware/errorHandler.js';
+// import environment variable
+import { ENV } from './lib/env.js';
+// import DB connection
+import { connectDB } from './lib/db.js';
+// import dns
+import dns from 'node:dns/promises';
 
 const app: Application = express();
-const PORT: number = Number(process.env['PORT']) || 5000;
+const PORT: number = ENV.PORT;
 
+if (ENV.CUSTOM_DNS_SERVERS && ENV.CUSTOM_DNS_SERVERS.length > 0) {
+  dns.setServers(ENV.CUSTOM_DNS_SERVERS);
+}
 
-// 2. Define __dirname correctly for ESM (replacing path.resolve)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(cors());
 app.use(express.json());
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 
-// Endpoints
-app.use('/', rootRoutes);
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/messages', messageRoutes);
 
-if (process.env['NODE_ENV'] === 'production') {
-  // Serve built frontend
-  // Serve static files from Vite build
-  app.use(express.static(path.join(__dirname, '..', '..', 'client', 'dist')));
+// Serve Static Files From Vite Build (React Frontend)
+app.use(express.static(path.join(__dirname, '..', '..', 'client', 'dist')));
 
-  // SPA fallback — send index.html for all non-API routes
-  app.get(/.*/, (req: Request, res: Response) => {
-    // Optional: only send index.html for non-file requests
-    if (req.originalUrl.includes('.')) {
-      return res.status(404).end(); // let 404 happen for missing files
-    }
-    res.sendFile(
-      path.join(__dirname, '..', '..', 'client', 'dist', 'index.html'),
-    );
-  });
-}
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// SPA Fallback => send index.html For All Non-API Routes
+app.get(/.*/, (req: Request, res: Response) => {
+  // Handle Missing Api Routes
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(404).json('Api routes not found');
+  }
+  // Handle Missing File Exetentions like (style.css, img.png etc..)
+  if (req.originalUrl.includes('.')) {
+    return res.status(404).end();
+  }
+  // Any Others Routes will Be Handled By React
+  res.sendFile(
+    path.join(__dirname, '..', '..', 'client', 'dist', 'index.html'),
+  );
 });
+// Middleware handler for custom error
+app.use(errorHandler);
+
+const startServer = async () => {
+  try {
+    await connectDB(ENV.MONGO_URI);
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+startServer();

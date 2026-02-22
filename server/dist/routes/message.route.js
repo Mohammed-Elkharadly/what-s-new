@@ -5,4 +5,4 @@ router.get('/send', asyncHandler((_req, res) => {
     res.send('send a message');
 }));
 export default router;
-//# sourceMappingURL=message.js.map
+//# sourceMappingURL=message.route.js.map

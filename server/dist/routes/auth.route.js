@@ -11,4 +11,4 @@ router.get('/logout', asyncHandler((_req, res) => {
     res.send('logout');
 }));
 export default router;
-//# sourceMappingURL=auth.js.map
+//# sourceMappingURL=auth.route.js.map
