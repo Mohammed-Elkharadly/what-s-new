@@ -65,7 +65,7 @@ export const getMessageByUserId = async (req: Request, res: Response) => {
     return;
   }
   // return the messages as a response
-  res.status(StatusCodes.OK).json(messages);
+  res.status(StatusCodes.OK).json({ messages });
 };
 
 export const sendMessage = async (req: Request, res: Response) => {
@@ -133,12 +133,12 @@ export const sendMessage = async (req: Request, res: Response) => {
       });
       imageUrl = uploadResponse.secure_url;
     } catch (error) {
-      throw new CustomError('Faild to upload image', StatusCodes.BAD_REQUEST);
+      throw new CustomError('Failed to upload image', StatusCodes.BAD_REQUEST);
     }
   }
 
   // verify reveiver exist
-  const receiverExists = await User.exists({ _id: receiverId });
+  const receiverExists = await User.exists(receiverId);
   if (!receiverExists) {
     throw new CustomError('Receiver not found', StatusCodes.NOT_FOUND);
   }
@@ -166,20 +166,28 @@ export const getAllChats = async (req: Request, res: Response) => {
     );
   }
 
-  // find all messages where the logged in user is either the sender or receiver, sorted by creation date
-  const messages = await Message.find({
-    $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
-  }).sort({ createdAt: -1 });
+  // Use aggregation to get unique chat partner IDs efficiently
+  const chatPartners = await Message.aggregate([
+    {
+      $match: {
+        $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
+      },
+    },
+    {
+      $project: {
+        chatPartnerId: {
+          $cond: {
+            if: { $eq: ['$senderId', loggedInUserId] },
+            then: '$receiverId',
+            else: '$senderId',
+          },
+        },
+      },
+    },
+    { $group: { _id: '$chatPartnerId' } },
+  ]);
 
-  const uniqueChatUserIds = [
-    ...new Set(
-      messages.map((msg) => {
-        return msg.senderId.toString() === loggedInUserId.toString()
-          ? msg.receiverId.toString()
-          : msg.senderId.toString();
-      }),
-    ),
-  ];
+  const uniqueChatUserIds = chatPartners.map((p) => p._id);
 
   const chats = await User.find({ _id: { $in: uniqueChatUserIds } }).select(
     '-password',

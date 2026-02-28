@@ -95,13 +95,19 @@ export const updateProfile = async (req: Request, res: Response) => {
   }
 
   // Upload to Cloudinary
-  const uploadResponse = await cloudinary.uploader.upload(avatar, {
-    folder: 'avatars',
-    width: 400,
-    height: 400,
-    crop: 'fill',
-    allowed_formats: ['jpg', 'png', 'webp'],
-  });
+  let uploadResponse;
+  try {
+    uploadResponse = await cloudinary.uploader.upload(avatar, {
+      folder: 'avatars',
+      width: 400,
+      height: 400,
+      crop: 'fill',
+      allowed_formats: ['jpg', 'png', 'webp'],
+    });
+  } catch (error) {
+    throw new CustomError('Failed to upload avatar', StatusCodes.BAD_REQUEST);
+  }
+  
 
   // Update user in database
   const updatedUser = await User.findByIdAndUpdate(

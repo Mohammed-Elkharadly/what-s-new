@@ -5,7 +5,7 @@ interface IMessage {
   receiverId: Types.ObjectId;
   isRead: boolean;
   content: string;
-  image: string | null;
+  image: string;
 }
 
 export type MessageDocument = HydratedDocument<IMessage>;
