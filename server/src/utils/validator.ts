@@ -1,8 +1,9 @@
 import { CustomError } from './customError.js';
 import { StatusCodes } from 'http-status-codes';
-import bcrypt from 'bcrypt';
+import type { UserDocument } from '../models/User.js';
 
 export class Validator {
+  // signup check
   static validateSignup(name: string, email: string, password: string) {
     // check if all credentials is provided
     if (!name || !email || !password) {
@@ -24,21 +25,10 @@ export class Validator {
       );
     }
   }
-  static async validateLogin(password: string, DBPassword: string) {
-    // check if password is provided
-    if (!password) {
-      throw new CustomError(
-        'invalid email or password',
-        StatusCodes.UNAUTHORIZED,
-      );
-    }
-    // If DBPassword is falsy (user not found), comparison will fail safely
-    const isMatch = DBPassword
-      ? await bcrypt.compare(password, DBPassword)
-      : false;
-    // check if the password is not matched
-    if (!isMatch) {
-      throw new CustomError('invalid password', StatusCodes.UNAUTHORIZED);
+  // login check
+  static async validateLogin(password: string, user: UserDocument | null) {
+    if(!user || !(await user.comparePassword(password))) {
+      throw new CustomError('invalid email or password', StatusCodes.UNAUTHORIZED);
     }
   }
 }

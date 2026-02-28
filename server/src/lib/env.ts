@@ -38,6 +38,9 @@ interface EnvConfig {
   RESEND_EMAIL: string;
   CLIENT_URL: string;
   CUSTOM_DNS_SERVERS?: string[];
+  CLOUDINARY_CLOUD_NAME: string;
+  CLOUDINARY_API_KEY: string;
+  CLOUDINARY_API_SECRET: string;
 }
 export const ENV: EnvConfig = {
   PORT: Number(process.env.PORT) || 5000,
@@ -50,4 +53,7 @@ export const ENV: EnvConfig = {
   RESEND_EMAIL: requireEnv('RESEND_EMAIL'),
   CLIENT_URL: requireEnv('CLIENT_URL'),
   CUSTOM_DNS_SERVERS: parseDnsServers('CUSTOM_DNS_SERVERS'),
+  CLOUDINARY_CLOUD_NAME: requireEnv('CLOUDINARY_CLOUD_NAME'),
+  CLOUDINARY_API_KEY: String(requireEnv('CLOUDINARY_API_KEY')),
+  CLOUDINARY_API_SECRET: requireEnv('CLOUDINARY_API_SECRET'),
 };

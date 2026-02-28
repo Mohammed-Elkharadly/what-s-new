@@ -1,19 +1,21 @@
 import { Schema, model, Types, Model, type HydratedDocument } from 'mongoose';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { ENV } from '../lib/env.js';
 
-export type UserDocument = HydratedDocument<Iuser, IuserMethods>;
+export type UserDocument = HydratedDocument<IUser, IUserMethods>;
 
 // Define TS interface
-export interface Iuser {
+export interface IUser {
   name: string;
   email: string;
   password: string;
   avatar?: string;
 }
 
-interface IuserMethods {
+interface IUserMethods {
   createJWT(): string;
+  comparePassword(candidate: string): Promise<boolean>;
 }
 
 // Iuser => Document shape (fields)
@@ -22,9 +24,9 @@ interface IuserMethods {
 
 // Create user Schema
 const userSchema = new Schema<
-  Iuser,
-  Model<Iuser, {}, IuserMethods>,
-  IuserMethods
+  IUser,
+  Model<IUser, {}, IUserMethods>,
+  IUserMethods
 >(
   {
     name: {
@@ -51,7 +53,26 @@ const userSchema = new Schema<
   { timestamps: true },
 );
 
-userSchema.methods.createJWT = function (): string {
+// auto-hash runs everytime we save a user, "before"
+userSchema.pre('save', async function (this: UserDocument) {
+  if (!this.isModified('password')) return;
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  } catch (error) {
+    throw error;
+  }
+});
+
+// password hashing middleware used during login, "custom methods"
+userSchema.methods.comparePassword = async function (
+  candidate: string,
+): Promise<boolean> {
+  return await bcrypt.compare(candidate, this.password);
+};
+
+// crcate jwt token, "custom methods"
+userSchema.methods.createJWT = function (this: UserDocument): string {
   if (!ENV.JWT_SECRET_KEY || isNaN(Number(ENV.JWT_EXPIRES_IN))) {
     throw new Error('JWT_SECRET_KEY is not defined');
   }
@@ -60,7 +81,7 @@ userSchema.methods.createJWT = function (): string {
   });
 };
 
-export const User = model<Iuser, Model<Iuser, {}, IuserMethods>>(
+export const User = model<IUser, Model<IUser, {}, IUserMethods>>(
   'User',
   userSchema,
 );
