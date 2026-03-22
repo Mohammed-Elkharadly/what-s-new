@@ -43,7 +43,7 @@ const ChatPage = () => {
     if (selectedContact) {
       markAsRead(selectedContact._id);
     }
-  }, [messages, selectedContact]);
+  }, [messages, selectedContact, markAsRead]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -56,7 +56,7 @@ const ChatPage = () => {
         receiverId: selectedContact._id,
         content,
         timestamp: Date.now(),
-      });
+      }).unwrap();
       setContent('');
       inputRef.current?.focus();
     } catch (error) {
@@ -153,11 +153,11 @@ const ChatPage = () => {
               );
             })
           )}
-          <div ref={bottomRef} aria-label="refer"></div>
+          <div ref={bottomRef} aria-hidden="true"></div>
         </div>
         {/** Input */}
         <div className="px-4 py-3 border-t border-base-300 bg-base-100 flex items-center gap-2">
-          <label htmlFor="message" aria-label="inpu message label"></label>
+          <label htmlFor="message" aria-label="input message label"></label>
           <input
             type="text"
             id="message"

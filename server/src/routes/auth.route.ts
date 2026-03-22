@@ -18,7 +18,7 @@ router.post('/logout', asyncHandler(logout));
 
 router.use(authenticated);
 
-router.get('/check-auth', checkAuth);
+router.get('/check-auth', asyncHandler(checkAuth));
 router.patch('/update-profile', asyncHandler(updateProfile));
 
 export default router;

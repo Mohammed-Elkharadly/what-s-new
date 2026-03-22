@@ -32,22 +32,23 @@ const SidebarHeader = ({
               <span>{user?.name.charAt(0).toUpperCase()}</span>
             )}
           </div>
-        <span className="absolute z-50 top-0 left-0 w-2 h-2 rounded-full bg-success"></span>
+          <span className="absolute z-50 top-0 left-0 w-2 h-2 rounded-full bg-success"></span>
         </div>
         <span className="font-semibold truncate">{user?.name}</span>
       </div>
       {/** Search input */}
       <div className="px-3 py-2 border-b border-gray-200">
         <label
-          htmlFor="name"
+          htmlFor="search"
           aria-label="search input"
           className="input input-bordered flex items-center gap-2 input-sm"
         >
           <FontAwesomeIcon icon={faMagnifyingGlass} />
           <input
             type="text"
-            id="name"
-            name="name"
+            id="search"
+            name="search"
+            placeholder="Search..."
             className="grow"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

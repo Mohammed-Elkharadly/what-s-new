@@ -139,7 +139,7 @@ export const sendMessage = async (req: Request, res: Response) => {
   }
 
   // verify reveiver exist
-  const receiverExists = await User.exists(receiverId);
+  const receiverExists = await User.exists({ _id: receiverId });
   if (!receiverExists) {
     throw new CustomError('Receiver not found', StatusCodes.NOT_FOUND);
   }
@@ -214,16 +214,16 @@ export const markAsRead = async (req: Request, res: Response) => {
     throw new CustomError('Invalid user ID', StatusCodes.BAD_REQUEST);
   }
 
-  const sernderObjectId = new Types.ObjectId(senderId);
+  const senderObjectId = new Types.ObjectId(senderId);
 
   // mark all messages from senderId to loggedInUserId as read
   await Message.updateMany(
-    { senderId: sernderObjectId, receiverId: loggedInUserId, isRead: false },
+    { senderId: senderObjectId, receiverId: loggedInUserId, isRead: false },
     { isRead: true },
   );
 
   // emit to sender that their message were read
-  const senderSocketId = onlineUsers.get(sernderObjectId.toString());
+  const senderSocketId = onlineUsers.get(senderObjectId.toString());
   if (senderSocketId) {
     io.to(senderSocketId).emit('messages:read', { by: loggedInUserId });
   }

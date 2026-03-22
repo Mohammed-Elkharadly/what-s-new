@@ -36,7 +36,7 @@ export const messageApi = apiSlice.injectEndpoints({
           console.log(data);
           dispatch(addMessage(data.message));
         } catch (error) {
-          console.error('Failed to send message');
+          console.error('Failed to send message', error);
         }
       },
     }),

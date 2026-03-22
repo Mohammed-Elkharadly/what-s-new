@@ -6,7 +6,7 @@ import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
-import ChatLyout from './components/ChatLyout';
+import ChatLayout from './components/ChatLayout';
 
 function App() {
   const { isLoading } = useCheckAuthQuery(undefined, { refetchOnFocus: true });
@@ -14,7 +14,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="min-h-full flex flex-col items-center justify-center gap-4">
-        <span className="loading loading-spinner loading-xs"></span>
+        <span className="loading loading-spinner loading-lg"></span>
         <span>Cecking Authentication...</span>
       </div>
     );
@@ -23,7 +23,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route element={<ProtectedRoute />}>
-          <Route element={<ChatLyout />}>
+          <Route element={<ChatLayout />}>
             <Route index element={<ChatPage />} />
           </Route>
         </Route>

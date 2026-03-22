@@ -11,7 +11,7 @@ export const usersApi = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled;
           dispatch(setContacts(data.contacts));
         } catch (error) {
-          console.error('Failed to fetch contacts');
+          console.error('Failed to fetch contacts', error);
         }
       },
     }),

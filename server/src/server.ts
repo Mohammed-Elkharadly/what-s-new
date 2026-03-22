@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
   socket.on('user:online', (userId: string) => {
     onlineUsers.set(userId, socket.id);
     // broadcast online users to everyone
-    io.emit('user:online', Array.from(onlineUsers.keys()));
+    io.emit('users:online', Array.from(onlineUsers.keys()));
   });
 
   socket.on('disconnect', () => {

@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import useSocket from '../shared/hooks/useSocket';
 
-const ChatLyout = () => {
+const ChatLayout = () => {
   // connect socket when autheticated
   useSocket();
   return (
@@ -15,4 +15,4 @@ const ChatLyout = () => {
   );
 };
 
-export default ChatLyout;
+export default ChatLayout;

@@ -36,7 +36,6 @@ const SidebarContent = ({
             <button
               key={contact._id}
               type="button"
-              aria-label="selected contact"
               className={`flex items-center w-full px-4 py-2 hover:bg-green-700 transition-colors cursor-pointer mb-2 rounded-xl
                 ${isOpen ? 'gap-3' : 'justify-center'}
                 ${selectedContact?._id === contact._id ? 'bg-green-700' : ''}`}

@@ -30,17 +30,13 @@ const LoginPage = () => {
       const data = await loginUser({ email, password }).unwrap();
       toast.success(data.message);
     } catch (error) {
-      console.error('Faild to login', error);
+      console.error('Failed to login', error);
     }
   };
 
   // extract error message from RTK query error
   const errorMessage =
     (error as any)?.data?.message || 'something went wrong. try again.';
-
-  if (isLoading) {
-    return <span className="loading loading-spinner loading-xl"></span>;
-  }
 
   return (
     <>
@@ -79,7 +75,7 @@ const LoginPage = () => {
                 <input
                   type="password"
                   placeholder="************"
-                  className={`input input-borderd ${isError ? 'input-error' : ''}`}
+                  className={`input input-bordered ${isError ? 'input-error' : ''}`}
                   id="password"
                   name="password"
                   onChange={(e) => setPassword(e.target.value)}

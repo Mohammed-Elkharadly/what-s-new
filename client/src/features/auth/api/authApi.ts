@@ -8,15 +8,15 @@ export const authApi = apiSlice.injectEndpoints({
       { user: User; message: string },
       LoginCredentials
     >({
-      query: (credentilas) => ({
+      query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
-        body: credentilas,
+        body: credentials,
       }),
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(login({ user: data.user}));
+          dispatch(login({ user: data.user }));
         } catch (error) {
           console.error(error);
         }
@@ -39,9 +39,9 @@ export const authApi = apiSlice.injectEndpoints({
         try {
           await queryFulfilled; // wait to the server to confirm logout
           dispatch(logout()); // wipe local auth state
-          dispatch(apiSlice.util.resetApiState()); // clear all chashed messages/data
+          dispatch(apiSlice.util.resetApiState()); // clear all cashed messages/data
         } catch (error) {
-          console.error('logout faild', error);
+          console.error('logout failed', error);
         }
       },
     }),
@@ -70,10 +70,12 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(_args, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
-          dispatch(login({ user: data.user}));
+          dispatch(login({ user: data.user }));
         } catch (error) {
-          // If the cookie is expired or missing, we log out locally
-          dispatch(logout());
+          const err = error as { error?: { status?: number } };
+          if (err.error?.status === 401 || err.error?.status === 403) {
+            dispatch(logout());
+          }
         }
       },
     }),

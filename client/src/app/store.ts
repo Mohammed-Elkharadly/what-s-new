@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { apiSlice } from '../shared/api/apiSlice';
 import authReducer from '../features/auth/slices/authSlice';
 import usersReducer from '../features/users/slices/usersSlice';
-import { rtkQueryErroMiddleware } from './middleware/rtkQueryErrorMiddlewarw';
+import { rtkQueryErrorMiddleware } from './middleware/rtkQueryErrorMiddlewarw';
 import messageReducer from '../features/messages/slices/messageSlice';
 export const store = configureStore({
   reducer: {
@@ -14,7 +14,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(apiSlice.middleware)
-      .concat(rtkQueryErroMiddleware),
+      .concat(rtkQueryErrorMiddleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

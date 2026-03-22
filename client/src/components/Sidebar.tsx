@@ -14,7 +14,9 @@ const Sidebar = () => {
   const [search, setSearch] = useState('');
 
   const { user } = useAppSelector((state) => state.auth);
-  const { selectedContact, contacts, onlineUsers } = useAppSelector((state) => state.users);
+  const { selectedContact, contacts, onlineUsers } = useAppSelector(
+    (state) => state.users,
+  );
   const [logoutUser, { isLoading: isLoggingOut }] = useLogoutUserMutation();
 
   // Fetches data into Redux store automatically
@@ -40,7 +42,7 @@ const Sidebar = () => {
           type="button"
           className="btn btn-square btn-ghost w-full hover:bg-green-700"
           onClick={() => setIsOpen(!isOpen)}
-          aria-label="toggle sidebar"
+          aria-label="Toggle sidebar"
         >
           <FontAwesomeIcon icon={faBars} size="lg" />
         </button>

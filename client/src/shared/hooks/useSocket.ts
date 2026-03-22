@@ -37,6 +37,7 @@ const useSocket = () => {
     return () => {
       socket.off('users:online');
       socket.off('message:new');
+      socket.off('messages:read');
       socket.disconnect();
     };
   }, [isAuthenticated, user, dispatch]);

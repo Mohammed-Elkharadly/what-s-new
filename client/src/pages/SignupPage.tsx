@@ -12,7 +12,7 @@ const SignupPage = () => {
 
   const [signupUser, { isLoading, isError, error }] = useSignupUserMutation();
 
-  // focus on email input after loading
+  // Focus on name input on mount
   useEffect(() => {
     nameRef.current?.focus();
   }, []);
@@ -23,7 +23,7 @@ const SignupPage = () => {
       await signupUser({ name, email, password }).unwrap();
       navigate('/');
     } catch (error) {
-      console.error('Falid to signup', error);
+      console.error('Failed to signup', error);
     }
   };
 
@@ -43,7 +43,7 @@ const SignupPage = () => {
       <main className="min-h-screen flex items-center justify-center">
         <div className="card w-96 bg-info-content shadow-xl">
           <div className="card-body">
-            <h2 className="card-title text-2x1 font-bold mb-4">Signup</h2>
+            <h2 className="card-title text-2xl font-bold mb-4">Signup</h2>
             {/** error alert */}
             {isError && (
               <div className="alert alert-error">
@@ -58,8 +58,8 @@ const SignupPage = () => {
                 <input
                   ref={nameRef}
                   type="text"
-                  placeholder="john deo"
-                  className={`input input-borderd ${isError ? 'input-error' : ''}`}
+                  placeholder="John Deo"
+                  className={`input input-bordered ${isError ? 'input-error' : ''}`}
                   id="name"
                   name="name"
                   onChange={(e) => setName(e.target.value)}

@@ -28,6 +28,7 @@ const SidebarFooter = ({
           aria-label="logout"
           className="btn btn-ghost btn-sm justify-start gap-3 w-full text-error hover:bg-green-700"
           onClick={handleLogout}
+          disabled={isLoggingOut}
         >
           {isLoggingOut ? (
             <span className="loading loading-spinner loading-xs"></span>
