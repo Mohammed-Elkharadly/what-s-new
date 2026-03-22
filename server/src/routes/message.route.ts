@@ -6,6 +6,7 @@ import {
   getAllChats,
   getMessageByUserId,
   sendMessage,
+  markAsRead
 } from '../controllers/messageController.js';
 const router = express.Router();
 
@@ -15,4 +16,5 @@ router.get('/contacts', asyncHandler(getAllContacts));
 router.get('/chats', asyncHandler(getAllChats));
 router.get('/:id', asyncHandler(getMessageByUserId));
 router.post('/send/:id', asyncHandler(sendMessage));
+router.patch('/read/:id', asyncHandler(markAsRead));
 export default router;

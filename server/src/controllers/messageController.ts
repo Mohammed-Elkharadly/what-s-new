@@ -1,3 +1,4 @@
+import { io, onlineUsers } from '../server.js';
 import type { Request, Response } from 'express';
 import { type QueryFilter, Types } from 'mongoose';
 import type { MessageDocument } from '../models/Message.js';
@@ -152,6 +153,12 @@ export const sendMessage = async (req: Request, res: Response) => {
     image: imageUrl,
   });
   await newMessage.save();
+
+  // emit to receiver if online
+  const receiverSocketId = onlineUsers.get(receiverId.toString());
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit('message:new', newMessage);
+  }
   // return the created message as a response
   res.status(StatusCodes.CREATED).json({ message: newMessage });
 };
@@ -193,4 +200,32 @@ export const getAllChats = async (req: Request, res: Response) => {
     '-password',
   );
   res.status(StatusCodes.OK).json(chats);
+};
+
+export const markAsRead = async (req: Request, res: Response) => {
+  const loggedInUserId = req.user?._id;
+  const { id: senderId } = req.params;
+
+  if (!loggedInUserId) {
+    throw new CustomError('Unauthorized', StatusCodes.UNAUTHORIZED);
+  }
+
+  if (typeof senderId !== 'string' || !Types.ObjectId.isValid(senderId)) {
+    throw new CustomError('Invalid user ID', StatusCodes.BAD_REQUEST);
+  }
+
+  const sernderObjectId = new Types.ObjectId(senderId);
+
+  // mark all messages from senderId to loggedInUserId as read
+  await Message.updateMany(
+    { senderId: sernderObjectId, receiverId: loggedInUserId, isRead: false },
+    { isRead: true },
+  );
+
+  // emit to sender that their message were read
+  const senderSocketId = onlineUsers.get(sernderObjectId.toString());
+  if (senderSocketId) {
+    io.to(senderSocketId).emit('messages:read', { by: loggedInUserId });
+  }
+  res.status(StatusCodes.OK).json({ message: 'message marked as read' });
 };

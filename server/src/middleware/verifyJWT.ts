@@ -56,6 +56,7 @@ export const authenticated = async (
       throw new CustomError('User not found', StatusCodes.NOT_FOUND);
     }
 
+    // attach user to client request
     req.user = user;
 
     next();

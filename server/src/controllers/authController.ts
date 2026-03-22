@@ -36,19 +36,17 @@ export const signup = async (req: Request, res: Response) => {
   // custom token handler for cookie
   TokenHandler.attachCookie(res, token);
   // send the response
-  res
-    .status(StatusCodes.CREATED)
-    .json({ user: { id: user._id }, message: 'User created successfully' });
+  res.status(StatusCodes.CREATED).json({
+    user: { id: user._id, name: user.name, email: user.email },
+    message: 'User created successfully',
+  });
 };
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    throw new CustomError(
-      "you need to signup first if you don't have an account ",
-      StatusCodes.UNAUTHORIZED,
-    );
+    throw new CustomError('invalid credentials', StatusCodes.UNAUTHORIZED);
   }
   // validate login
   await Validator.validateLogin(password, user);
@@ -58,7 +56,12 @@ export const login = async (req: Request, res: Response) => {
   TokenHandler.attachCookie(res, token);
 
   res.status(StatusCodes.OK).json({
-    user: { name: user.name, email: user.email },
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+    },
     message: 'user logged in successfully',
   });
 };
@@ -66,6 +69,22 @@ export const login = async (req: Request, res: Response) => {
 export const logout = async (req: Request, res: Response) => {
   TokenHandler.clearCookie(res);
   res.status(StatusCodes.OK).json({ message: 'user logged out successfully' });
+};
+
+export const checkAuth = async (req: Request, res: Response) => {
+  const id = req.user?._id;
+
+  if (!id) {
+    throw new CustomError('Not authenticated', StatusCodes.UNAUTHORIZED);
+  }
+
+  const user = await User.findById(id).select('-password');
+
+  if (!user) {
+    throw new CustomError('User not found', StatusCodes.NOT_FOUND);
+  }
+
+  res.status(StatusCodes.OK).json({ user });
 };
 
 export const updateProfile = async (req: Request, res: Response) => {
@@ -107,7 +126,6 @@ export const updateProfile = async (req: Request, res: Response) => {
   } catch (error) {
     throw new CustomError('Failed to upload avatar', StatusCodes.BAD_REQUEST);
   }
-  
 
   // Update user in database
   const updatedUser = await User.findByIdAndUpdate(
